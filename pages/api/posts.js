@@ -1,5 +1,6 @@
 import prisma from "../../lib/prisma";
 import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
+import { sendTelegramMessage } from "../../lib/telegram";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -22,6 +23,19 @@ export default async function handler(req, res) {
       const newPost = await prisma.post.create({
         data: newPostData,
       });
+
+      // Send the post info to Telegram
+      let message = `New Post Created:\n\nPost Name: ${
+        newPost.postName
+      }\nDescription: ${newPost.description}\nTicker: ${
+        newPost.ticker
+      }\nLinks: ${newPost.links.join(", ")}\n`;
+      if (newPost.image) {
+        message += `Image: ${newPost.image}\n`;
+      }
+
+      await sendTelegramMessage(message);
+
       res.status(201).json(newPost);
     } catch (error) {
       console.error("Error creating post:", error);
