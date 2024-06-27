@@ -1,15 +1,22 @@
 import prisma from "../../lib/prisma";
+import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    const { description, links, ticker } = req.body;
+    await runMiddleware(req, res, uploadMiddleware);
 
+    const { description, links, postName, ticker } = req.body;
     const newPostData = {
       description,
-      links,
+      links: JSON.parse(links),
+      postName,
       ticker,
       createdAt: new Date(),
     };
+
+    if (req.file) {
+      newPostData.image = `/uploads/${req.file.filename}`;
+    }
 
     try {
       const newPost = await prisma.post.create({
@@ -31,6 +38,12 @@ export default async function handler(req, res) {
       res.status(500).json({ error: "Error fetching posts" });
     }
   } else {
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false, // Disallow body parsing, consume as stream
+  },
+};

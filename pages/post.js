@@ -10,6 +10,8 @@ export default function Home() {
   const [description, setDescription] = useState("");
   const [links, setLinks] = useState(["", "", ""]);
   const [ticker, setTicker] = useState("");
+  const [postName, setPostName] = useState("");
+  const [image, setImage] = useState(null); // State to handle image file
   const router = useRouter();
 
   const handlePost = async () => {
@@ -31,13 +33,18 @@ export default function Home() {
       await sendTransaction(transaction, connection);
 
       // After successful payment, create the post
-      const postData = {
-        description,
-        links,
-        ticker,
-      };
+      const postData = new FormData(); // Using FormData to handle file upload
+      postData.append("description", description);
+      postData.append("links", JSON.stringify(links)); // Convert links array to JSON string
+      postData.append("ticker", ticker);
+      postData.append("postName", postName);
+      if (image) postData.append("image", image); // Append the image file if available
 
-      await axios.post("/api/posts", postData);
+      await axios.post("/api/posts", postData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       router.push("/"); // Redirect to index page
     } catch (error) {
       console.error("Error creating post:", error);
@@ -73,9 +80,21 @@ export default function Home() {
       ))}
       <input
         type="text"
+        value={postName}
+        onChange={(e) => setPostName(e.target.value)}
+        placeholder="Name"
+        className="w-full p-2 border border-gray-300 rounded mb-4"
+      />
+      <input
+        type="text"
         value={ticker}
         onChange={(e) => setTicker(e.target.value)}
         placeholder="Ticker"
+        className="w-full p-2 border border-gray-300 rounded mb-4"
+      />
+      <input
+        type="file"
+        onChange={(e) => setImage(e.target.files[0])} // Handle file input
         className="w-full p-2 border border-gray-300 rounded mb-4"
       />
       <button

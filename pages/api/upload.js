@@ -1,35 +1,49 @@
-// pages/api/upload.js
-import nextConnect from "next-connect";
-import multer from "multer";
+import prisma from "../../lib/prisma";
+import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: "./public/uploads",
-    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-  }),
-});
+export default async function handler(req, res) {
+  if (req.method === "POST") {
+    await runMiddleware(req, res, uploadMiddleware);
 
-const apiRoute = nextConnect({
-  onError(error, req, res) {
-    res
-      .status(501)
-      .json({ error: `Sorry something happened! ${error.message}` });
-  },
-  onNoMatch(req, res) {
-    res.status(405).json({ error: `Method '${req.method}' not allowed` });
-  },
-});
+    const { description, links, postName, ticker } = req.body;
+    const newPostData = {
+      description,
+      links: JSON.parse(links),
+      postName,
+      ticker,
+      createdAt: new Date(),
+    };
 
-apiRoute.use(upload.single("file"));
+    if (req.file) {
+      newPostData.image = `/uploads/${req.file.filename}`;
+    }
 
-apiRoute.post((req, res) => {
-  res.status(200).json({ fileUrl: `/uploads/${req.file.filename}` });
-});
-
-export default apiRoute;
+    try {
+      const newPost = await prisma.post.create({
+        data: newPostData,
+      });
+      res.status(201).json(newPost);
+    } catch (error) {
+      console.error("Error creating post:", error);
+      res.status(500).json({ error: "Error creating post" });
+    }
+  } else if (req.method === "GET") {
+    try {
+      const posts = await prisma.post.findMany({
+        orderBy: { createdAt: "desc" },
+      });
+      res.status(200).json(posts);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      res.status(500).json({ error: "Error fetching posts" });
+    }
+  } else {
+    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+  }
+}
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: false, // Disallow body parsing, consume as stream
   },
 };
