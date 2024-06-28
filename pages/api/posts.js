@@ -20,11 +20,8 @@ export default async function handler(req, res) {
     }
 
     try {
-      const newPost = await prisma.post.create({
-        data: newPostData,
-      });
+      const newPost = await prisma.post.create({ data: newPostData });
 
-      // Send the post info to Telegram
       let message = `New Post Created:\n\nPost Name: ${
         newPost.postName
       }\nDescription: ${newPost.description}\nTicker: ${
@@ -58,6 +55,6 @@ export default async function handler(req, res) {
 
 export const config = {
   api: {
-    bodyParser: false, // Disallow body parsing, consume as stream
+    bodyParser: false,
   },
 };
