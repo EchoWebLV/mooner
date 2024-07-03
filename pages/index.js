@@ -5,17 +5,28 @@ import Logo from "../componenets/Logo";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const postsPerPage = 3;
 
-  const fetchPosts = async () => {
-    const { data } = await axios.get("/api/posts");
-    setPosts(data);
+  const fetchPosts = async (page, search = "") => {
+    try {
+      const { data } = await axios.get(
+        `/api/posts?page=${page}&limit=${postsPerPage}&search=${search}`
+      );
+      setPosts(data.posts);
+      setCurrentPage(data.pagination.currentPage);
+      setTotalPages(data.pagination.totalPages);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
   };
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    fetchPosts(currentPage, searchTerm);
+  }, [currentPage, searchTerm]);
 
-  // Helper function to calculate the time difference and format it
   const getTimeAgo = (dateString) => {
     const postDate = new Date(dateString);
     const now = new Date();
@@ -34,6 +45,24 @@ export default function Home() {
     }
   };
 
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    fetchPosts(1, searchTerm);
+  };
+
   return (
     <div>
       <div className="container mx-auto p-4">
@@ -43,6 +72,21 @@ export default function Home() {
         <div className="text-center py-5 text-[2rem]">
           <Link href="/post">[ Post New Mooner ]</Link>
         </div>
+        <form onSubmit={handleSearch} className="mb-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search posts..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-md"
+          />
+          <button
+            type="submit"
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md"
+          >
+            Search
+          </button>
+        </form>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {posts.map((post) => (
             <div
@@ -79,6 +123,25 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className="bg-blue-500 text-white px-4 py-2 rounded-l-md disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <span className="bg-gray-200 px-4 py-2">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="bg-blue-500 text-white px-4 py-2 rounded-r-md disabled:bg-gray-300"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

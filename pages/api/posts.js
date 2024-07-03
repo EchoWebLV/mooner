@@ -1,6 +1,5 @@
 import prisma from "../../lib/prisma";
 import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
-import { sendTelegramMessage } from "../../lib/telegram";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -31,8 +30,6 @@ export default async function handler(req, res) {
         message += `Image: ${newPost.image}\n`;
       }
 
-      await sendTelegramMessage(message);
-
       res.status(201).json(newPost);
     } catch (error) {
       console.error("Error creating post:", error);
@@ -40,10 +37,43 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "GET") {
     try {
-      const posts = await prisma.post.findMany({
-        orderBy: { createdAt: "desc" },
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const search = req.query.search || "";
+      const skip = (page - 1) * limit;
+
+      const where = search
+        ? {
+            OR: [
+              { postName: { contains: search, mode: "insensitive" } },
+              { description: { contains: search, mode: "insensitive" } },
+              { ticker: { contains: search, mode: "insensitive" } },
+            ],
+          }
+        : {};
+
+      const [posts, totalCount] = await Promise.all([
+        prisma.post.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        prisma.post.count({ where }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      res.status(200).json({
+        posts,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalCount,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
       });
-      res.status(200).json(posts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       res.status(500).json({ error: "Error fetching posts" });

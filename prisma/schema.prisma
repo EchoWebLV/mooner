@@ -13,6 +13,6 @@ model Post {
   links       String[]
   postName    String
   ticker      String
-  image       String?  // New field for image URL
+  image       String?  // Optional field for image URL
   createdAt   DateTime @default(now())
 }
