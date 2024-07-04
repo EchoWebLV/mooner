@@ -7,7 +7,7 @@ const Nav = () => {
             href="/post"
             className="text-white hover:text-gray-300 transition duration-300"
           >
-            Trending
+            TRENDING
           </a>
         </li>
         <li className="p-2">
@@ -15,7 +15,7 @@ const Nav = () => {
             href="/post"
             className="text-white hover:text-gray-300 transition duration-300"
           >
-            All Mooners
+            MOONERS
           </a>
         </li>
         <li className="p-2">

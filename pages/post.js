@@ -11,7 +11,8 @@ export default function Home() {
   const [links, setLinks] = useState(["", "", ""]);
   const [ticker, setTicker] = useState("");
   const [postName, setPostName] = useState("");
-  const [image, setImage] = useState(null); // State to handle image file
+  const [CA, setCA] = useState(""); // New state for CA
+  const [image, setImage] = useState(null);
   const router = useRouter();
 
   const handlePost = async () => {
@@ -33,12 +34,13 @@ export default function Home() {
       await sendTransaction(transaction, connection);
 
       // After successful payment, create the post
-      const postData = new FormData(); // Using FormData to handle file upload
+      const postData = new FormData();
       postData.append("description", description);
-      postData.append("links", JSON.stringify(links)); // Convert links array to JSON string
+      postData.append("links", JSON.stringify(links));
       postData.append("ticker", ticker);
       postData.append("postName", postName);
-      if (image) postData.append("image", image); // Append the image file if available
+      postData.append("CA", CA); // Append the CA
+      if (image) postData.append("image", image);
 
       await axios.post("/api/posts", postData, {
         headers: {
@@ -93,8 +95,15 @@ export default function Home() {
         className="w-full p-2 border border-gray-300 rounded mb-4"
       />
       <input
+        type="text"
+        value={CA}
+        onChange={(e) => setCA(e.target.value)}
+        placeholder="Contract Address (CA)"
+        className="w-full p-2 border border-gray-300 rounded mb-4"
+      />
+      <input
         type="file"
-        onChange={(e) => setImage(e.target.files[0])} // Handle file input
+        onChange={(e) => setImage(e.target.files[0])}
         className="w-full p-2 border border-gray-300 rounded mb-4"
       />
       <button

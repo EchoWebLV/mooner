@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
 import Logo from "../componenets/Logo";
+import Nav from "../componenets/Nav";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -69,59 +70,67 @@ export default function Home() {
         <div className="text-center text-[0.3rem] md:text-[0.75rem]">
           <Logo />
         </div>
+        <div>
+          <Nav />
+        </div>
         <div className="text-center py-5 text-[2rem]">
           <Link href="/post">[ Post New Mooner ]</Link>
         </div>
-        <form onSubmit={handleSearch} className="mb-4">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search posts..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-          <button
-            type="submit"
-            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Search
-          </button>
+        <form
+          onSubmit={handleSearch}
+          className="flex flex-col items-center mb-4 max-w-[400px] mx-auto"
+        >
+          <div className="flex w-full">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search posts..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-l-md"
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded-r-md"
+            >
+              Search
+            </button>
+          </div>
         </form>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {posts.map((post) => (
-            <div
-              key={post.id}
-              className="relative bg-white shadow-md rounded-lg p-6 mb-4 flex flex-col"
-            >
-              {post.image && (
-                <img
-                  src={post.image}
-                  alt={post.name}
-                  className="mb-4 w-full h-48 object-cover rounded-lg"
-                />
-              )}
-              <p className="text-gray-500 font-semibold">{post.name}</p>
-              <p className="text-gray-500 font-semibold">
-                TICKER: ({post.ticker})
-              </p>
-              <p className="text-gray-700 font-semibold mb-2">
-                {post.description}
-              </p>
-              <ul className="list-disc list-inside mb-2">
-                {post.links.map((link, index) => (
-                  <div key={index}>
-                    <a href={link} className="text-blue-500 hover:underline">
-                      {link}
-                    </a>
-                  </div>
-                ))}
-              </ul>
-              <div className="mt-auto">
-                <p className="text-gray-500 text-sm mt-2">
-                  {getTimeAgo(post.createdAt)}
+            <Link href="/mooner/[ca]" as={`/mooner/${post.CA}`} key={post.id}>
+              <div className="relative bg-white shadow-md rounded-lg p-6 mb-4 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+                {post.image && (
+                  <img
+                    src={post.image}
+                    alt={post.postName}
+                    className="mb-4 w-full h-48 object-cover rounded-lg"
+                  />
+                )}
+                <p className="text-gray-500 font-semibold">{post.postName}</p>
+                <p className="text-gray-500 font-semibold">
+                  TICKER: ({post.ticker})
                 </p>
+                <p className="text-gray-700 font-semibold mb-2">
+                  {post.description}
+                </p>
+                <ul className="list-disc list-inside mb-2">
+                  {post.links.map((link, index) => (
+                    <div key={index}>
+                      <a href={link} className="text-blue-500 hover:underline">
+                        {link}
+                      </a>
+                    </div>
+                  ))}
+                </ul>
+                <div className="mt-auto">
+                  <p className="text-gray-500 text-sm mt-2">
+                    {getTimeAgo(post.createdAt)}
+                  </p>
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         <div className="flex justify-center mt-4">

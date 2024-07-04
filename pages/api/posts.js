@@ -5,12 +5,13 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     await runMiddleware(req, res, uploadMiddleware);
 
-    const { description, links, postName, ticker } = req.body;
+    const { description, links, postName, ticker, CA } = req.body;
     const newPostData = {
       description,
       links: JSON.parse(links),
       postName,
       ticker,
+      CA,
       createdAt: new Date(),
     };
 
@@ -23,8 +24,8 @@ export default async function handler(req, res) {
 
       let message = `New Post Created:\n\nPost Name: ${
         newPost.postName
-      }\nDescription: ${newPost.description}\nTicker: ${
-        newPost.ticker
+      }\nDescription: ${newPost.description}\nTicker: ${newPost.ticker}\nCA: ${
+        newPost.CA
       }\nLinks: ${newPost.links.join(", ")}\n`;
       if (newPost.image) {
         message += `Image: ${newPost.image}\n`;
@@ -48,6 +49,7 @@ export default async function handler(req, res) {
               { postName: { contains: search, mode: "insensitive" } },
               { description: { contains: search, mode: "insensitive" } },
               { ticker: { contains: search, mode: "insensitive" } },
+              { CA: { contains: search, mode: "insensitive" } },
             ],
           }
         : {};
