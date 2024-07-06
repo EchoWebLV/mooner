@@ -15,15 +15,33 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+html {
+  font-family: "Pixelify Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@font-face {
+  font-family: quantify;
+  font-style: normal;
+  font-weight: 400;
+  src: local("Quantify"),
+    url(https://fonts.cdnfonts.com/s/16465/Quantify.woff) format("woff");
+}
+@font-face {
+  font-family: quantify;
+  font-style: normal;
+  font-weight: 700;
+  src: local("Quantify"),
+    url("https://fonts.cdnfonts.com/s/16465/Quantify Bold.woff") format("woff");
+}
+
+body,
+html {
+  font-family: "Quantify", sans-serif;
+  color: white;
+  background-color: #181716;
 }
 
 @layer utilities {

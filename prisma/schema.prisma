@@ -8,12 +8,14 @@ datasource db {
 }
 
 model Post {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  description String
-  links       String[]
-  postName    String
-  ticker      String
-  CA          String   @unique // Solana mint address, unique constraint added
-  image       String?  // Optional field for image URL
-  createdAt   DateTime @default(now())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  description  String
+  telegramLink String?
+  twitterLink  String?
+  websiteLink  String?
+  postName     String
+  ticker       String
+  CA           String   @unique
+  image        String?
+  createdAt    DateTime @default(now())
 }

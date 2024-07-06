@@ -65,15 +65,15 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <div className="container mx-auto p-4">
+    <div className="flex flex-col min-h-screen">
+      <div className="container mx-auto p-4 flex-grow">
         <div className="text-center text-[0.3rem] md:text-[0.75rem]">
           <Logo />
         </div>
         <div>
           <Nav />
         </div>
-        <div className="text-center py-5 text-[2rem]">
+        <div className="text-center py-5 text-[2rem] text-[#9945FF]">
           <Link href="/post">[ Post New Mooner ]</Link>
         </div>
         <form
@@ -90,7 +90,7 @@ export default function Home() {
             />
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-r-md"
+              className="bg-[#9945FF] text-white font-bold px-4 py-2 rounded-r-md"
             >
               Search
             </button>
@@ -133,21 +133,24 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        <div className="flex justify-center mt-4">
+      </div>
+
+      <div className="mt-auto">
+        <div className="flex justify-center py-4">
           <button
             onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className="bg-blue-500 text-white px-4 py-2 rounded-l-md disabled:bg-gray-300"
+            className="bg-[#9a45ff] text-white px-4 py-2 rounded-l-md disabled:bg-[#9945ff78]"
           >
-            Previous
+            Prev
           </button>
-          <span className="bg-gray-200 px-4 py-2">
+          <span className="bg-[#9a45ff] px-4 py-2">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className="bg-blue-500 text-white px-4 py-2 rounded-r-md disabled:bg-gray-300"
+            className="bg-[#9a45ff] text-white px-4 py-2 rounded-r-md disabled:bg-[#9945ff78]"
           >
             Next
           </button>

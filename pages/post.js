@@ -4,6 +4,7 @@ import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import axios from "axios";
 import { Connection, clusterApiUrl, Transaction } from "@solana/web3.js";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 export default function Home() {
   const { publicKey, sendTransaction } = useWallet();
@@ -11,9 +12,25 @@ export default function Home() {
   const [links, setLinks] = useState(["", "", ""]);
   const [ticker, setTicker] = useState("");
   const [postName, setPostName] = useState("");
-  const [CA, setCA] = useState(""); // New state for CA
+  const [CA, setCA] = useState("");
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const router = useRouter();
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
 
   const handlePost = async () => {
     if (!publicKey) return alert("Please connect your wallet!");
@@ -39,7 +56,7 @@ export default function Home() {
       postData.append("links", JSON.stringify(links));
       postData.append("ticker", ticker);
       postData.append("postName", postName);
-      postData.append("CA", CA); // Append the CA
+      postData.append("CA", CA);
       if (image) postData.append("image", image);
 
       await axios.post("/api/posts", postData, {
@@ -54,8 +71,8 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 text-black">
-      <h1 className="text-2xl font-bold mb-4">Post a Blog</h1>
+    <div className="max-w-2xl mx-auto p-4 text-white">
+      <h1 className="text-4xl text-center font-bold mb-4">Post New Mooner</h1>
       <div className="mb-4">
         <WalletMultiButton className="w-full" />
       </div>
@@ -101,11 +118,24 @@ export default function Home() {
         placeholder="Contract Address (CA)"
         className="w-full p-2 border border-gray-300 rounded mb-4"
       />
-      <input
-        type="file"
-        onChange={(e) => setImage(e.target.files[0])}
-        className="w-full p-2 border border-gray-300 rounded mb-4"
-      />
+      <div className="mb-4">
+        <input
+          type="file"
+          onChange={handleImageUpload}
+          className="w-full p-2 border border-gray-300 rounded mb-2"
+        />
+        {imagePreview && (
+          <div className="mt-2">
+            <Image
+              src={imagePreview}
+              alt="Preview"
+              width={200}
+              height={200}
+              className="object-cover rounded"
+            />
+          </div>
+        )}
+      </div>
       <button
         onClick={handlePost}
         className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"

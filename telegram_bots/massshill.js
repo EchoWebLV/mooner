@@ -45,7 +45,7 @@ bot.on("message", (msg) => {
   if (msg.chat.type === "private" && msg.text.toLowerCase() === "hello") {
     // Send "hello" to all groups
     groupChats.forEach((groupId) => {
-      bot.sendMessage(groupId, "hello");
+      bot.sendMessage(groupId, "  ");
     });
   }
 });
