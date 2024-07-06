@@ -1,5 +1,6 @@
 import prisma from "../../lib/prisma";
 import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
+import cloudinary from "../../lib/cloudinary";
 const { Connection, PublicKey } = require("@solana/web3.js");
 
 // Layout for a mint account
@@ -86,7 +87,18 @@ export default async function handler(req, res) {
     };
 
     if (req.file) {
-      newPostData.image = `/uploads/${req.file.filename}`;
+      try {
+        // Upload the image to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "posts", // You can organize your images in folders
+        });
+
+        // Add the Cloudinary URL to the newPostData
+        newPostData.image = result.secure_url;
+      } catch (error) {
+        console.error("Error uploading image to Cloudinary:", error);
+        return res.status(500).json({ error: "Error uploading image" });
+      }
     }
 
     try {
@@ -169,7 +181,7 @@ export default async function handler(req, res) {
         pagination: {
           currentPage: page,
           totalPages,
-          totalCount,
+          totalPages,
           hasNextPage: page < totalPages,
           hasPreviousPage: page > 1,
         },
