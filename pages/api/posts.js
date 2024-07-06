@@ -1,6 +1,7 @@
 import prisma from "../../lib/prisma";
 import { uploadMiddleware, runMiddleware } from "../../lib/middleware";
-import cloudinary from "../../lib/cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+import streamifier from "streamifier";
 const { Connection, PublicKey } = require("@solana/web3.js");
 
 // Layout for a mint account
@@ -74,34 +75,44 @@ async function getTokenBurnedPercentage(tokenAddress) {
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
-    await runMiddleware(req, res, uploadMiddleware);
-
-    const { description, links, postName, ticker, CA } = req.body;
-    const newPostData = {
-      description,
-      links: JSON.parse(links),
-      postName,
-      ticker,
-      CA,
-      createdAt: new Date(),
-    };
-
-    if (req.file) {
-      try {
-        // Upload the image to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: "posts", // You can organize your images in folders
-        });
-
-        // Add the Cloudinary URL to the newPostData
-        newPostData.image = result.secure_url;
-      } catch (error) {
-        console.error("Error uploading image to Cloudinary:", error);
-        return res.status(500).json({ error: "Error uploading image" });
-      }
-    }
-
     try {
+      await runMiddleware(req, res, uploadMiddleware);
+
+      const { description, links, postName, ticker, CA } = req.body;
+      const newPostData = {
+        description,
+        links: JSON.parse(links),
+        postName,
+        ticker,
+        CA,
+        createdAt: new Date(),
+      };
+
+      if (req.file) {
+        try {
+          // Upload the image to Cloudinary
+          const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                folder: "posts",
+              },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+
+            streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+          });
+
+          // Add the Cloudinary URL to the newPostData
+          newPostData.image = result.secure_url;
+        } catch (error) {
+          console.error("Error uploading image to Cloudinary:", error);
+          return res.status(500).json({ error: "Error uploading image" });
+        }
+      }
+
       const newPost = await prisma.post.create({ data: newPostData });
 
       let message = `New Post Created:\n\nPost Name: ${
