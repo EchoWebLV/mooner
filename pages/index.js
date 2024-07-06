@@ -107,7 +107,7 @@ export default function Home() {
                     <img
                       src={post.image}
                       alt={post.postName}
-                      className="mb-4 w-full h-48 object-cover rounded-lg"
+                      className="mb-4 w-full h-48 object-contain rounded-lg"
                     />
                   )}
                   <p className="text-gray-500 font-semibold">{post.postName}</p>
