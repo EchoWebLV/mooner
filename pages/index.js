@@ -98,40 +98,53 @@ export default function Home() {
         </form>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {posts.map((post) => (
-            <Link href="/mooner/[ca]" as={`/mooner/${post.CA}`} key={post.id}>
-              <div className="relative bg-white shadow-md rounded-lg p-6 mb-4 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt={post.postName}
-                    className="mb-4 w-full h-48 object-cover rounded-lg"
-                  />
-                )}
-                <p className="text-gray-500 font-semibold">{post.postName}</p>
-                <p className="text-gray-500 font-semibold">
-                  TICKER: ({post.ticker})
-                </p>
-                <p className="text-gray-700 font-semibold mb-2">
-                  {post.description}
-                </p>
-                <ul className="list-disc list-inside mb-2">
-                  {post.links.map((link, index) => (
-                    <div key={index}>
-                      <a href={link} className="text-blue-500 hover:underline">
-                        {link}
-                      </a>
-                    </div>
-                  ))}
-                </ul>
-                <div className="mt-auto">
-                  <p className="text-gray-500 text-sm mt-2">
-                    {getTimeAgo(post.createdAt)}
+          {posts.map((post) => {
+            console.log(post);
+            return (
+              <Link href="/mooner/[ca]" as={`/mooner/${post.CA}`} key={post.id}>
+                <div className="relative bg-white shadow-md rounded-lg p-6 mb-4 flex flex-col cursor-pointer hover:shadow-lg transition-shadow">
+                  {post.image && (
+                    <img
+                      src={post.image}
+                      alt={post.postName}
+                      className="mb-4 w-full h-48 object-cover rounded-lg"
+                    />
+                  )}
+                  <p className="text-gray-500 font-semibold">{post.postName}</p>
+                  <p className="text-gray-500 font-semibold">
+                    TICKER: ({post.ticker})
                   </p>
+                  <p className="text-gray-700 font-semibold mb-2">
+                    {post.description}
+                  </p>
+                  <ul className="list-disc list-inside mb-2">
+                    {post.links.map((link, index) => (
+                      <div key={index}>
+                        <a
+                          href={link}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {link}
+                        </a>
+                      </div>
+                    ))}
+                  </ul>
+                  <div>
+                    <p className="text-gray-500 text-sm mt-2">
+                      <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-[1rem] font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                        Burned: {post.burnedTokens}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="mt-auto">
+                    <p className="text-gray-500 text-sm mt-2">
+                      {getTimeAgo(post.createdAt)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
